@@ -1,0 +1,64 @@
+<%#INTERFACE
+
+modelkit_version "~>0.7.0"
+
+parameter "building_name", :default=>"Example Building"
+parameter "orientation", :default=>0
+
+parameter "window_u_value", :default=>0.35|'U-IP'
+
+
+%>
+
+
+<%
+insert "general.pxt",
+  :building_name=>building_name,
+  :orientation=>orientation
+
+insert "geometry.pxt"
+insert "location.pxt"
+
+insert "constructions.pxt",
+  :window_u=>window_u_value
+
+zones = [ ["Zone A", "OFFICE", "VAV 1"],
+          ["Zone B", "OFFICE", "VAV 1"],
+          ["Zone C", "CONFERENCE", "RTU-1"] ]
+
+zone_names = []
+
+for zone in zones
+
+  zone_name = zone[0]
+  zone_type = zone[1]
+  zone_sys = zone[2]
+
+  zone_names << zone_name
+
+
+  if (zone_type == "OFFICE")
+    insert "zoneloads/office.imf", :zone_name=>zone_name
+
+  elsif (zone_type == "CONFERENCE")
+    insert "zoneloads/conference.imf", :zone_name=>zone_name
+
+  end
+
+  insert "zonehvac/vav.imf", :zone_name=>zone_name, :heating_coil_type=>"HOTWATER"
+
+end
+
+
+insert "system/vav.imf", :system_name=>"VAV 1", :zone_names=>zone_names, :heating_coil_type=>"HOTWATER"
+
+
+zone_names << "VAV 1"
+
+insert "system/hotwater.imf", :system_name=>"HW", :zone_names=>zone_names
+
+
+insert "outputs.pxt"
+insert "outputs-debug.pxt"
+
+%>
